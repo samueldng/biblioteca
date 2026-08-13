@@ -5,10 +5,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { BookOpen, Search, UserPlus, UserCheck, X } from "lucide-react";
+import { addDays, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { BookOpen, CalendarClock, Search, UserPlus, UserCheck, X } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { QuickStudentModal } from "@/components/features/QuickStudentModal";
+
+// Deve ficar em sincronia com LOAN_PERIOD_DAYS em core/services/CreateLoanService.ts
+const LOAN_PERIOD_DAYS = 14;
 
 interface BookOption {
   id: string;
@@ -221,6 +226,20 @@ export function NewLoanPanel() {
           )}
         </div>
       </div>
+
+      {selectedBook && student && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/5 px-3 py-2 text-sm text-violet-200"
+        >
+          <CalendarClock className="h-4 w-4 shrink-0" />
+          Prazo de {LOAN_PERIOD_DAYS} dias — devolução prevista para{" "}
+          <span className="font-medium text-white">
+            {format(addDays(new Date(), LOAN_PERIOD_DAYS), "dd/MM/yyyy", { locale: ptBR })}
+          </span>
+        </motion.div>
+      )}
 
       <Button
         type="button"
