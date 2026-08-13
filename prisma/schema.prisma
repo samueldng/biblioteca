@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+enum BookStatus {
+  AVAILABLE
+  COMING_SOON
+  BORROWED
+  MAINTENANCE_LOST
+}
+
+enum Course {
+  ELETROTECNICA
+  REFRIGERACAO
+  ZOOTECNIA
+  OUTROS
+}
+
+model User {
+  id             String    @id @default(uuid())
+  name           String
+  email          String?   @unique // Opcional para alunos se o login for por matrícula
+  matricula      String?   @unique // Essencial para o aluno
+  hashedPassword String?
+  birthDate      DateTime? // Usada para gerar a senha inicial do aluno (DDMMAAAA)
+  role           Role      @default(STUDENT)
+  course         Course?
+  turma          String?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  loans          Loan[]
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  books     Book[]
+}
+
+model Book {
+  id          String     @id @default(uuid())
+  title       String
+  author      String
+  synopsis    String?    @db.Text
+  isbn        String?    @unique
+  publisher   String?
+  year        Int?
+  coverUrl    String?    // Caminho relativo em /public no armazenamento local; migrar para URL de bucket (S3) no futuro
+  status      BookStatus @default(AVAILABLE)
+
+  categoryId  String
+  category    Category   @relation(fields: [categoryId], references: [id])
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  loans       Loan[]
+}
+
+enum LoanStatus {
+  ACTIVE
+  RETURNED_ON_TIME
+  RETURNED_LATE
+  LOST
+}
+
+model Loan {
+  id             String     @id @default(uuid())
+
+  bookId         String
+  book           Book       @relation(fields: [bookId], references: [id])
+
+  userId         String
+  user           User       @relation(fields: [userId], references: [id])
+
+  borrowedAt     DateTime   @default(now())
+  dueDate        DateTime   // Data limite para devolução
+  returnedAt     DateTime?  // Data real da devolução
+  status         LoanStatus @default(ACTIVE)
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  // Índice para consultas de histórico por aluno
+  @@index([userId, status, returnedAt])
+  // Índice para a query de Ranking Mensal (filtra por status/período sem varrer a tabela toda)
+  @@index([status, returnedAt])
+}
