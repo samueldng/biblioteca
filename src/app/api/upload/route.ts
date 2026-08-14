@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { LocalStorageProvider } from "@/core/services/LocalStorageProvider";
+import { SupabaseStorageProvider } from "@/core/services/SupabaseStorageProvider";
 import { requireAdmin } from "@/lib/api-guard";
 
 const ALLOWED_TYPES: Record<string, string> = {
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const filename = `${randomUUID()}.${extension}`;
 
-    const storage = new LocalStorageProvider();
+    const storage = new SupabaseStorageProvider();
     const url = await storage.upload({ buffer, filename, contentType: file.type });
 
     return NextResponse.json({ url }, { status: 201 });
