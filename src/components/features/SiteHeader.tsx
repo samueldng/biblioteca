@@ -3,14 +3,42 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, LucideIcon, Menu, X } from "lucide-react";
+import {
+  ArrowLeftRight,
+  BookOpen,
+  GraduationCap,
+  LayoutDashboard,
+  Library,
+  LibraryBig,
+  ListChecks,
+  Menu,
+  Trophy,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserMenu } from "@/components/features/UserMenu";
+
+// Server Components (os layouts) não podem passar referências de função de
+// componente para um Client Component via props — o RSC exige que a árvore
+// serializada cruzando essa fronteira contenha só dados. Por isso os layouts
+// mandam uma chave de string e o ícone real é resolvido aqui, no cliente.
+const ICONS = {
+  dashboard: LayoutDashboard,
+  library: Library,
+  loans: ArrowLeftRight,
+  students: GraduationCap,
+  catalog: LibraryBig,
+  myLoans: ListChecks,
+  ranking: Trophy,
+} satisfies Record<string, LucideIcon>;
+
+export type NavIcon = keyof typeof ICONS;
 
 interface NavItem {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: NavIcon;
 }
 
 export function SiteHeader({
@@ -43,20 +71,23 @@ export function SiteHeader({
 
             {/* Desktop nav */}
             <nav className="hidden gap-1 sm:flex">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors hover:bg-white/5 hover:text-white ${
-                    pathname === item.href
-                      ? "bg-white/5 text-white"
-                      : "text-zinc-400"
-                  }`}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const Icon = ICONS[item.icon];
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors hover:bg-white/5 hover:text-white ${
+                      pathname === item.href
+                        ? "bg-white/5 text-white"
+                        : "text-zinc-400"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 
@@ -123,21 +154,24 @@ export function SiteHeader({
 
               {/* Drawer nav */}
               <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={closeDrawer}
-                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors hover:bg-white/5 hover:text-white ${
-                      pathname === item.href
-                        ? "bg-violet-500/10 text-violet-300 border border-violet-500/20"
-                        : "text-zinc-400"
-                    }`}
-                  >
-                    <item.icon className="h-5 w-5 shrink-0" />
-                    {item.label}
-                  </Link>
-                ))}
+                {navItems.map((item) => {
+                  const Icon = ICONS[item.icon];
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={closeDrawer}
+                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors hover:bg-white/5 hover:text-white ${
+                        pathname === item.href
+                          ? "bg-violet-500/10 text-violet-300 border border-violet-500/20"
+                          : "text-zinc-400"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5 shrink-0" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
               </nav>
 
               {/* Drawer footer — user info + logout */}

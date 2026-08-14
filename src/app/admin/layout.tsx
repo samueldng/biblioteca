@@ -1,4 +1,3 @@
-import { LayoutDashboard, Library, ArrowLeftRight, GraduationCap } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { SiteHeader } from "@/components/features/SiteHeader";
 
@@ -10,10 +9,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <SiteHeader
         title="Painel do Bibliotecário"
         navItems={[
-          { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-          { href: "/admin/books", label: "Acervo", icon: Library },
-          { href: "/admin/loans", label: "Empréstimos", icon: ArrowLeftRight },
-          { href: "/admin/users", label: "Alunos", icon: GraduationCap },
+          { href: "/admin", label: "Dashboard", icon: "dashboard" },
+          { href: "/admin/books", label: "Acervo", icon: "library" },
+          { href: "/admin/loans", label: "Empréstimos", icon: "loans" },
+          { href: "/admin/users", label: "Alunos", icon: "students" },
         ]}
         userName={session?.name ?? ""}
       />

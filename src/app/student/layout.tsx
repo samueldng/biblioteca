@@ -1,4 +1,3 @@
-import { LibraryBig, ListChecks, Trophy } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { SiteHeader } from "@/components/features/SiteHeader";
 
@@ -10,9 +9,9 @@ export default async function StudentLayout({ children }: { children: React.Reac
       <SiteHeader
         title="Biblioteca IEMA"
         navItems={[
-          { href: "/student/catalog", label: "Catálogo", icon: LibraryBig },
-          { href: "/student/loans", label: "Meus Empréstimos", icon: ListChecks },
-          { href: "/student/ranking", label: "Ranking", icon: Trophy },
+          { href: "/student/catalog", label: "Catálogo", icon: "catalog" },
+          { href: "/student/loans", label: "Meus Empréstimos", icon: "myLoans" },
+          { href: "/student/ranking", label: "Ranking", icon: "ranking" },
         ]}
         userName={session?.name ?? ""}
       />
