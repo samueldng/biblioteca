@@ -16,6 +16,8 @@ interface Category {
 
 const NEW_CATEGORY_VALUE = "__new__";
 const MAX_COVER_SIZE_BYTES = 4 * 1024 * 1024; // 4MB — mesmo teto do endpoint /api/upload
+const COVER_MAX_DIMENSION = 1600; // px no lado mais longo — de sobra para uma capa
+const COVER_JPEG_QUALITY = 0.82;
 
 // Respostas de erro que nunca chegam à nossa rota (ex.: 413 da própria
 // Vercel) vêm como texto puro, não JSON — response.json() lançaria uma
@@ -25,6 +27,38 @@ async function parseJsonResponse(response: Response): Promise<{ error?: string; 
     return await response.json();
   } catch {
     return { error: response.status === 413 ? "Arquivo muito grande para o servidor." : undefined };
+  }
+}
+
+// Fotos tiradas direto do celular costumam vir com vários MB em resolução
+// muito acima do que uma capa de livro precisa, e o limite de payload de
+// Serverless Function da Vercel (~4.5MB) não é configurável — então
+// reduzimos a imagem no cliente antes de qualquer coisa sair do navegador.
+async function compressCoverImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || file.size <= 400 * 1024) return file;
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, COVER_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", COVER_JPEG_QUALITY)
+    );
+    if (!blob || blob.size >= file.size) return file;
+
+    return new File([blob], file.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
+  } catch {
+    return file;
   }
 }
 
@@ -47,17 +81,24 @@ export function BookForm({ categories: initialCategories }: { categories: Catego
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleCoverChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleCoverChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
+    if (!file) {
+      setCoverFile(null);
+      setCoverPreview(null);
+      return;
+    }
 
-    if (file && file.size > MAX_COVER_SIZE_BYTES) {
-      toast.error("Arquivo maior que 4MB.");
+    const processed = await compressCoverImage(file);
+
+    if (processed.size > MAX_COVER_SIZE_BYTES) {
+      toast.error("Não foi possível reduzir o suficiente essa imagem. Envie um arquivo menor.");
       event.target.value = "";
       return;
     }
 
-    setCoverFile(file);
-    setCoverPreview(file ? URL.createObjectURL(file) : null);
+    setCoverFile(processed);
+    setCoverPreview(URL.createObjectURL(processed));
   }
 
   function clearCover() {
