@@ -15,6 +15,18 @@ interface Category {
 }
 
 const NEW_CATEGORY_VALUE = "__new__";
+const MAX_COVER_SIZE_BYTES = 4 * 1024 * 1024; // 4MB — mesmo teto do endpoint /api/upload
+
+// Respostas de erro que nunca chegam à nossa rota (ex.: 413 da própria
+// Vercel) vêm como texto puro, não JSON — response.json() lançaria uma
+// SyntaxError críptica ("unexpected token...") em vez de uma mensagem útil.
+async function parseJsonResponse(response: Response): Promise<{ error?: string; [key: string]: unknown }> {
+  try {
+    return await response.json();
+  } catch {
+    return { error: response.status === 413 ? "Arquivo muito grande para o servidor." : undefined };
+  }
+}
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "AVAILABLE", label: "Disponível" },
@@ -37,6 +49,13 @@ export function BookForm({ categories: initialCategories }: { categories: Catego
 
   function handleCoverChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
+
+    if (file && file.size > MAX_COVER_SIZE_BYTES) {
+      toast.error("Arquivo maior que 4MB.");
+      event.target.value = "";
+      return;
+    }
+
     setCoverFile(file);
     setCoverPreview(file ? URL.createObjectURL(file) : null);
   }
@@ -61,16 +80,17 @@ export function BookForm({ categories: initialCategories }: { categories: Catego
       body: JSON.stringify({ name: newCategoryName.trim() }),
     });
 
-    const result = await response.json();
+    const result = await parseJsonResponse(response);
     if (!response.ok) {
       toast.error(result.error ?? "Erro ao criar categoria.");
       return null;
     }
 
-    setCategories((prev) => [...prev, result].sort((a, b) => a.name.localeCompare(b.name)));
-    setCategoryValue(result.id);
+    const category = result as unknown as Category;
+    setCategories((prev) => [...prev, category].sort((a, b) => a.name.localeCompare(b.name)));
+    setCategoryValue(category.id);
     setNewCategoryName("");
-    return result.id as string;
+    return category.id;
   }
 
   async function uploadCover(): Promise<string | undefined> {
@@ -80,7 +100,7 @@ export function BookForm({ categories: initialCategories }: { categories: Catego
     formData.append("file", coverFile);
 
     const response = await fetch("/api/upload", { method: "POST", body: formData });
-    const result = await response.json();
+    const result = await parseJsonResponse(response);
 
     if (!response.ok) {
       throw new Error(result.error ?? "Erro ao enviar a capa.");
@@ -123,7 +143,7 @@ export function BookForm({ categories: initialCategories }: { categories: Catego
         body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
+      const result = await parseJsonResponse(response);
 
       if (!response.ok) {
         toast.error(result.error ?? "Erro ao cadastrar a obra.");

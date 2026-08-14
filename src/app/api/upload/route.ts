@@ -9,7 +9,10 @@ const ALLOWED_TYPES: Record<string, string> = {
   "image/webp": "webp",
 };
 
-const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+// Serverless Functions da Vercel rejeitam corpos de requisição acima de
+// ~4.5MB antes mesmo de chegar aqui, devolvendo um erro em texto puro (não
+// JSON) que quebra o parse no cliente. Ficamos com folga abaixo desse teto.
+const MAX_SIZE_BYTES = 4 * 1024 * 1024; // 4MB
 
 export async function POST(request: Request) {
   try {
@@ -33,7 +36,7 @@ export async function POST(request: Request) {
 
     if (file.size > MAX_SIZE_BYTES) {
       return NextResponse.json(
-        { error: "Arquivo maior que 5MB." },
+        { error: "Arquivo maior que 4MB." },
         { status: 400 }
       );
     }
