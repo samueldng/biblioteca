@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { SupabaseStorageProvider } from "@/core/services/SupabaseStorageProvider";
+import { SupabaseStorageProvider, StorageConfigError } from "@/core/services/SupabaseStorageProvider";
 import { requireAdmin } from "@/lib/api-guard";
 
 const ALLOWED_TYPES: Record<string, string> = {
@@ -47,6 +47,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ url }, { status: 201 });
   } catch (error) {
     console.error("[UPLOAD_ERROR]", error);
+
+    if (error instanceof StorageConfigError) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json({ error: "Erro ao enviar arquivo." }, { status: 500 });
   }
 }
