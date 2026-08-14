@@ -3,8 +3,10 @@ import { SignJWT, jwtVerify } from "jose";
 export const SESSION_COOKIE_NAME = "iema_session";
 const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 7; // 7 dias
 
+// JWT_SECRET é um alias legado: é o nome sob o qual o segredo foi provisionado
+// na Vercel. Padronizar tudo em SESSION_SECRET e remover o alias depois.
 function getSecretKey() {
-  const secret = process.env.SESSION_SECRET;
+  const secret = process.env.SESSION_SECRET ?? process.env.JWT_SECRET;
   if (!secret) {
     throw new Error("SESSION_SECRET não configurado.");
   }
