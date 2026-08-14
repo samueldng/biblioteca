@@ -20,6 +20,11 @@ export class SupabaseStorageProvider implements StorageProvider {
       method: "POST",
       headers: {
         Authorization: `Bearer ${SUPABASE_KEY}`,
+        // O gateway (Kong) do Supabase usa este header para identificar o
+        // projeto/autenticar a chamada na API REST; sem ele, chaves no novo
+        // formato sb_secret_/sb_publishable_ podem ser rejeitadas mesmo com
+        // um Authorization válido.
+        apikey: SUPABASE_KEY,
         "Content-Type": contentType,
         // upsert avoids 409 if same filename is re-uploaded
         "x-upsert": "true",
