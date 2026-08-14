@@ -5,6 +5,8 @@ import { CreateLoanService, LoanServiceError } from "@/core/services/CreateLoanS
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireSession } from "@/lib/api-guard";
 
+export const maxDuration = 30;
+
 export async function GET(request: NextRequest) {
   const guard = await requireSession();
   if (!guard.ok) return guard.response;

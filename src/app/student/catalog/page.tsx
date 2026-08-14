@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { FadeIn } from "@/components/ui/FadeIn";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 export default async function StudentCatalogPage({
   searchParams,

@@ -6,6 +6,8 @@ import { CreateBookService, BookServiceError } from "@/core/services/CreateBookS
 import { BookRepository } from "@/core/repositories/BookRepository";
 import { requireAdmin } from "@/lib/api-guard";
 
+export const maxDuration = 30;
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const categoryId = searchParams.get("categoryId") ?? undefined;

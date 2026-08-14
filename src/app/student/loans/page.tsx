@@ -7,6 +7,7 @@ import { FadeIn } from "@/components/ui/FadeIn";
 import { LOAN_STATUS_LABEL, LOAN_STATUS_TONE } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 export default async function StudentLoansPage() {
   const session = await getSession();

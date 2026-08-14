@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/ui/FadeIn";
 import { COURSE_LABEL } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 export default async function AdminUsersPage() {
   const students = await UserRepository.findStudents({});

@@ -4,6 +4,10 @@ import { loginSchema } from "@/core/dtos/auth.dto";
 import { LoginService, AuthError } from "@/core/services/LoginService";
 import { createSessionToken, SESSION_COOKIE_NAME, SESSION_COOKIE_MAX_AGE } from "@/lib/auth";
 
+// Dá margem para um cold start + conexão inicial ao PgBouncer sem estourar
+// o timeout padrão da função serverless.
+export const maxDuration = 30;
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();

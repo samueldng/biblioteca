@@ -5,6 +5,7 @@ import { RankingBoard } from "@/components/features/RankingBoard";
 import { FadeIn } from "@/components/ui/FadeIn";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 async function getStats() {
   const [totalBooks, activeLoans, totalStudents, overdueLoans] = await Promise.all([

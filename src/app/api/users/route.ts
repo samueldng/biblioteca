@@ -5,6 +5,8 @@ import { CreateStudentService, StudentServiceError } from "@/core/services/Creat
 import { UserRepository } from "@/core/repositories/UserRepository";
 import { requireAdmin } from "@/lib/api-guard";
 
+export const maxDuration = 30;
+
 export async function GET(request: NextRequest) {
   const guard = await requireAdmin();
   if (!guard.ok) return guard.response;

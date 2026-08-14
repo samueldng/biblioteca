@@ -5,6 +5,8 @@ import { CreateCategoryService } from "@/core/services/CreateCategoryService";
 import { CategoryRepository } from "@/core/repositories/CategoryRepository";
 import { requireAdmin } from "@/lib/api-guard";
 
+export const maxDuration = 30;
+
 export async function GET() {
   const categories = await CategoryRepository.findAll();
   return NextResponse.json(categories);

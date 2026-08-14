@@ -7,6 +7,7 @@ import { BookStatusControl } from "@/components/features/BookStatusControl";
 import { FadeIn } from "@/components/ui/FadeIn";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 export default async function AdminBooksPage() {
   const [books, categories] = await Promise.all([

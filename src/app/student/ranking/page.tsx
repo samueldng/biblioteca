@@ -3,6 +3,7 @@ import { RankingBoard } from "@/components/features/RankingBoard";
 import { FadeIn } from "@/components/ui/FadeIn";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 export default async function StudentRankingPage() {
   const ranking = await RankingService.getMonthlyRanking(20);

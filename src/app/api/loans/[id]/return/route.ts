@@ -3,6 +3,8 @@ import { ReturnLoanService } from "@/core/services/ReturnLoanService";
 import { LoanServiceError } from "@/core/services/CreateLoanService";
 import { requireAdmin } from "@/lib/api-guard";
 
+export const maxDuration = 30;
+
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }

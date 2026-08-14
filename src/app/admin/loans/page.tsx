@@ -9,6 +9,7 @@ import { LOAN_STATUS_LABEL, LOAN_STATUS_TONE } from "@/lib/labels";
 import { FadeIn } from "@/components/ui/FadeIn";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 export default async function AdminLoansPage() {
   const loans = await LoanRepository.findAllWithDetails();

@@ -5,6 +5,8 @@ import { UpdateBookStatusService } from "@/core/services/UpdateBookStatusService
 import { BookServiceError } from "@/core/services/CreateBookService";
 import { requireAdmin } from "@/lib/api-guard";
 
+export const maxDuration = 30;
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
